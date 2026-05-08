@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小小數學家 🦁</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Comic Sans MS", "Marker Felt", "Chalkboard SE", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    background: linear-gradient(135deg, #ffe5f1 0%, #fff5d6 50%, #d4f1ff 100%);
+    color: #3a2e5c;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    user-select: none;
+    overflow-x: hidden;
+  }
+  .game {
+    width: 100%;
+    max-width: 640px;
+    background: #fff;
+    border-radius: 32px;
+    box-shadow: 0 12px 0 #f9c4d2, 0 20px 50px rgba(160,80,120,.25);
+    padding: 22px 22px 28px;
+    position: relative;
+  }
+  /* Header */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .badge {
+    background: #fff8db;
+    border: 3px solid #ffd75e;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 0 #f0c84a;
+  }
+  .badge.level { background: #e6f7ff; border-color: #66b8ff; box-shadow: 0 3px 0 #4ea3eb;}
+  .badge.score { background: #ffe6f1; border-color: #ff7eb6; box-shadow: 0 3px 0 #e96aa1;}
+  .stars-row { font-size: 1.6em; letter-spacing: 2px; min-height: 1.2em; }
+  /* Question card */
+  .card {
+    background: linear-gradient(180deg, #fffbef 0%, #fff 100%);
+    border: 4px dashed #ffb6d5;
+    border-radius: 24px;
+    padding: 22px 16px;
+    text-align: center;
+    margin-bottom: 16px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+  }
+  .qtype {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #b388ff;
+    color: white;
+    padding: 4px 16px;
+    border-radius: 999px;
+    font-size: 0.95em;
+    font-weight: 700;
+    box-shadow: 0 3px 0 #8a5cd6;
+    white-space: nowrap;
+  }
+  .question {
+    font-size: 2.6em;
+    font-weight: 800;
+    color: #3a2e5c;
+    margin: 8px 0 4px;
+    line-height: 1.2;
+  }
+  .visual {
+    font-size: 2em;
+    line-height: 1.4;
+    margin: 6px 0;
+    letter-spacing: 4px;
+    word-spacing: 4px;
+  }
+  .hint { font-size: 1em; color: #8579a8; margin-top: 6px; }
+  /* Options */
+  .options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .opt {
+    background: #fff;
+    border: 4px solid #b3e5fc;
+    color: #1565a0;
+    border-radius: 20px;
+    padding: 18px 8px;
+    font-size: 2em;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .12s, background .15s;
+    box-shadow: 0 5px 0 #84c8e8;
+    font-family: inherit;
+  }
+  .opt:active { transform: translateY(3px); box-shadow: 0 2px 0 #84c8e8; }
+  .opt.c1 { border-color: #ffcdd2; color: #c2185b; box-shadow: 0 5px 0 #f29ba6; }
+  .opt.c2 { border-color: #c8e6c9; color: #2e7d32; box-shadow: 0 5px 0 #98c89c; }
+  .opt.c3 { border-color: #fff3a8; color: #b08900; box-shadow: 0 5px 0 #d4c46a; }
+  .opt.c4 { border-color: #d1c4e9; color: #4527a0; box-shadow: 0 5px 0 #a194c7; }
+  .opt.correct { background: #c8f7c5 !important; border-color: #4caf50 !important; color: #1b5e20 !important; animation: pop .35s; }
+  .opt.wrong { background: #ffd6d6 !important; border-color: #e57373 !important; color: #c62828 !important; animation: shake .35s; }
+  @keyframes pop { 0% {transform: scale(1);} 50% {transform: scale(1.12);} 100% {transform: scale(1);} }
+  @keyframes shake { 0%,100%{transform: translateX(0);} 25%{transform: translateX(-8px);} 75%{transform: translateX(8px);} }
+  /* Feedback */
+  .feedback {
+    text-align: center;
+    margin: 12px 0 6px;
+    font-size: 1.4em;
+    font-weight: 700;
+    min-height: 1.5em;
+  }
+  .feedback.good { color: #2e7d32; }
+  .feedback.bad { color: #c62828; }
+  /* Next button */
+  .next {
+    display: block;
+    margin: 6px auto 0;
+    background: #ff7eb6;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 36px;
+    font-size: 1.3em;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #e96aa1;
+    font-family: inherit;
+    transition: transform .12s;
+  }
+  .next:active { transform: translateY(3px); box-shadow: 0 2px 0 #e96aa1; }
+  .next:disabled { opacity: 0; pointer-events: none; }
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    pointer-events: none;
+    top: -10px;
+    width: 12px;
+    height: 18px;
+    z-index: 999;
+    border-radius: 3px;
+  }
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(60, 30, 80, 0.55);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 28px;
+    padding: 28px 22px;
+    text-align: center;
+    max-width: 360px;
+    width: 100%;
+    box-shadow: 0 12px 0 #c4a4f0, 0 24px 60px rgba(80,40,120,.35);
+  }
+  .modal h2 { font-size: 1.8em; margin-bottom: 8px; color: #4527a0; }
+  .modal .big-emoji { font-size: 4em; margin: 8px 0; }
+  .modal p { font-size: 1.15em; margin: 6px 0; color: #4a3d6e;}
+  .modal button {
+    margin-top: 16px;
+    background: #66bb6a;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 14px 32px;
+    font-size: 1.2em;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #4f9e54;
+    font-family: inherit;
+  }
+  .modal button:active { transform: translateY(3px); box-shadow: 0 2px 0 #4f9e54; }
+  /* Floating mascot */
+  .mascot {
+    font-size: 2.2em;
+    text-align: center;
+    margin-bottom: 8px;
+    animation: bobble 2.5s ease-in-out infinite;
+  }
+  @keyframes bobble {
+    0%,100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+  /* Sound toggle */
+  .sound-toggle {
+    position: absolute;
+    top: 18px; right: 18px;
+    background: #fff;
+    border: 3px solid #ddd;
+    border-radius: 50%;
+    width: 44px; height: 44px;
+    font-size: 1.3em;
+    cursor: pointer;
+  }
+  /* Streak indicator */
+  .streak {
+    display: inline-block;
+    background: #fff0f5;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-left: 6px;
+    font-size: 0.9em;
+    color: #c2185b;
+    font-weight: 700;
+    border: 2px solid #ffb6d5;
+  }
+  /* 開始畫面 */
+  .start-screen, .end-screen {
+    text-align: center;
+    padding: 14px 6px 8px;
+  }
+  .start-screen h1, .end-screen h1 {
+    font-size: 2em;
+    color: #4527a0;
+    margin-bottom: 4px;
+  }
+  .start-screen p, .end-screen p {
+    color: #6a5d8a;
+    margin: 4px 0 14px;
+    font-size: 1.05em;
+  }
+  .count-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 16px 0 8px;
+  }
+  .count-btn {
+    background: #fff;
+    border: 4px solid #ffd75e;
+    color: #b08900;
+    border-radius: 22px;
+    padding: 22px 4px;
+    font-size: 1.4em;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #f0c84a;
+    font-family: inherit;
+    line-height: 1.2;
+  }
+  .count-btn .num { display:block; font-size: 2em; margin-bottom: 2px;}
+  .count-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #f0c84a; }
+  .count-btn.b2 { border-color: #ffb6d5; color: #c2185b; box-shadow: 0 5px 0 #f29ba6;}
+  .count-btn.b3 { border-color: #b388ff; color: #4527a0; box-shadow: 0 5px 0 #8a5cd6;}
+  .stat-row {
+    display: flex;
+    justify-content: space-around;
+    margin: 18px 0;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .stat-box {
+    background: #fff8db;
+    border: 3px solid #ffd75e;
+    border-radius: 20px;
+    padding: 10px 14px;
+    min-width: 90px;
+  }
+  .stat-box .label { font-size: 0.9em; color: #8a6d20;}
+  .stat-box .value { font-size: 1.6em; font-weight: 800; color: #b08900;}
+  .stat-box.s2 { background: #ffe6f1; border-color: #ff7eb6;}
+  .stat-box.s2 .label{color:#a23568;} .stat-box.s2 .value{color:#c2185b;}
+  .stat-box.s3 { background: #e6f7ff; border-color: #66b8ff;}
+  .stat-box.s3 .label{color:#3a73a8;} .stat-box.s3 .value{color:#1565a0;}
+  .progress-bar {
+    background: #f0e8ff;
+    border-radius: 999px;
+    height: 14px;
+    overflow: hidden;
+    margin: 10px 0 14px;
+    border: 2px solid #d4c4ff;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff9966, #ff7eb6, #b388ff);
+    width: 0%;
+    transition: width .35s;
+  }
+  .hidden { display: none !important; }
+
+  @media (max-width: 420px) {
+    .question { font-size: 2.1em; }
+    .opt { font-size: 1.7em; padding: 16px 6px; }
+    .badge { font-size: 0.95em; padding: 5px 10px;}
+    .count-btn { font-size: 1.1em; padding: 18px 2px;}
+    .count-btn .num { font-size: 1.7em; }
+  }
+</style>
+</head>
+<body>
+<div class="game">
+  <button class="sound-toggle" id="soundBtn" title="開關音效">🔊</button>
+  <div class="mascot" id="mascot">🦁🐰🐼🦊🐱</div>
+
+  <!-- 開始畫面 -->
+  <div class="start-screen" id="startScreen">
+    <h1>小小數學家</h1>
+    <p>選擇今天要做幾題吧！</p>
+    <div class="count-grid">
+      <button class="count-btn b1" data-count="5"><span class="num">5</span>題<br><small>暖身</small></button>
+      <button class="count-btn b2" data-count="10"><span class="num">10</span>題<br><small>標準</small></button>
+      <button class="count-btn b3" data-count="20"><span class="num">20</span>題<br><small>挑戰</small></button>
+    </div>
+    <p style="font-size:0.95em;color:#8579a8;">難度會跟著你的表現自動調整 ✨<br>從第 1 關（5 以內）一路挑戰到第 6 關（50 以內 + 邏輯題）！</p>
+  </div>
+
+  <!-- 遊戲畫面 -->
+  <div id="gameScreen" class="hidden">
+    <div class="topbar">
+      <div class="badge level">⭐ 第 <span id="level">1</span> 關</div>
+      <div class="badge score">🍯 <span id="score">0</span> 分</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="stars-row" id="starsRow"></div>
+
+    <div class="card">
+      <div class="qtype" id="qtype">加法</div>
+      <div class="question" id="question">3 + 2 = ?</div>
+      <div class="visual" id="visual"></div>
+      <div class="hint" id="hint"></div>
+    </div>
+
+    <div class="options" id="options"></div>
+
+    <div class="feedback" id="feedback">&nbsp;</div>
+    <button class="next" id="nextBtn" disabled>下一題 ➡️</button>
+  </div>
+
+  <!-- 結束畫面 -->
+  <div class="end-screen hidden" id="endScreen">
+    <div class="big-emoji" id="endEmoji" style="font-size:4em;">🏆</div>
+    <h1 id="endTitle">完成囉！</h1>
+    <p id="endComment">你真是個小小數學家！</p>
+    <div class="stat-row">
+      <div class="stat-box"><div class="label">總分</div><div class="value" id="endScore">0</div></div>
+      <div class="stat-box s2"><div class="label">答對</div><div class="value" id="endCorrect">0/0</div></div>
+      <div class="stat-box s3"><div class="label">最高關卡</div><div class="value" id="endLevel">1</div></div>
+    </div>
+    <button class="next" id="restartBtn">再玩一次 🔁</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <div class="big-emoji" id="modalEmoji">🎉</div>
+    <h2 id="modalTitle">太厲害了！</h2>
+    <p id="modalText">你答對了 5 題！</p>
+    <p id="modalScore"></p>
+    <button id="modalBtn">繼續挑戰！</button>
+  </div>
+</div>
+
+<script>
+// ============= 狀態 =============
+const state = {
+  level: 1,           // 1~6
+  maxLevelReached: 1, // 紀錄達到過的最高關卡
+  score: 0,
+  streak: 0,          // 連對
+  wrongStreak: 0,     // 連錯
+  questionsThisRound: 0,
+  totalQuestions: 10, // 本回合題數（5/10/20）
+  totalCorrect: 0,
+  totalAnswered: 0,
+  soundOn: true,
+  current: null,      // 當前題目
+};
+
+// ============= 音效（Web Audio）=============
+let audioCtx = null;
+function initAudio() {
+  if (!audioCtx) {
+    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  }
+}
+function beep(freq, dur=0.18, type='sine', vol=0.18) {
+  if (!state.soundOn || !audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = type;
+  osc.frequency.value = freq;
+  gain.gain.value = vol;
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  osc.stop(audioCtx.currentTime + dur);
+}
+function playCorrect() { beep(660, 0.12, 'sine'); setTimeout(()=>beep(880, 0.18, 'sine'), 110); }
+function playWrong()   { beep(220, 0.25, 'sawtooth', 0.12); }
+function playLevelUp() { [523, 659, 784, 1046].forEach((f,i)=>setTimeout(()=>beep(f,0.18,'triangle',0.2), i*120)); }
+
+// ============= 題目產生器 =============
+const ANIMALS = ['🐰','🐱','🐶','🐼','🦊','🐯','🐷','🐸','🐵','🦁','🐮','🐭'];
+const FRUITS  = ['🍎','🍌','🍊','🍓','🍇','🍉','🍑','🍍','🥝','🥭'];
+const SHAPES  = [
+  {emoji:'🔴', name:'圓形'},
+  {emoji:'🟦', name:'正方形'},
+  {emoji:'🔺', name:'三角形'},
+  {emoji:'⭐', name:'星形'},
+  {emoji:'❤️', name:'愛心'},
+];
+
+function rint(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr) { return arr[rint(0, arr.length - 1)]; }
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = rint(0, i);
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// 根據關卡決定題目最大數字
+function maxNum() {
+  return [5, 10, 15, 20, 30, 50][state.level - 1] || 50;
+}
+
+// 產生題型 1：加法
+function makeAdd() {
+  const m = maxNum();
+  const a = rint(1, Math.max(2, Math.floor(m/2)));
+  const b = rint(1, m - a);
+  const ans = a + b;
+  const icon = pick(FRUITS);
+  return {
+    type: '加法',
+    text: `${a} + ${b} = ?`,
+    visual: icon.repeat(a) + ' + ' + icon.repeat(b),
+    hint: '把兩堆加起來，總共有幾個？',
+    answer: ans,
+    options: genNumberOptions(ans, m + 2),
+  };
+}
+
+// 產生題型 2：減法
+function makeSub() {
+  const m = maxNum();
+  const a = rint(2, m);
+  const b = rint(1, a);
+  const ans = a - b;
+  const icon = pick(FRUITS);
+  return {
+    type: '減法',
+    text: `${a} - ${b} = ?`,
+    visual: icon.repeat(a) + ' 拿走 ' + b + ' 個',
+    hint: '把一些拿走後，還剩下幾個？',
+    answer: ans,
+    options: genNumberOptions(ans, m),
+  };
+}
+
+// 產生題型 3：比大小
+function makeCompare() {
+  const m = maxNum();
+  let a = rint(1, m), b = rint(1, m);
+  while (a === b) b = rint(1, m);
+  const bigger = Math.random() < 0.5;
+  const icon = pick(ANIMALS);
+  return {
+    type: bigger ? '誰比較多？' : '誰比較少？',
+    text: bigger ? `哪一個比較大？` : `哪一個比較小？`,
+    visual: `${a} 和 ${b}`,
+    hint: bigger ? '挑出大的那個數字' : '挑出小的那個數字',
+    answer: bigger ? Math.max(a,b) : Math.min(a,b),
+    options: shuffle([a, b, Math.max(a,b)+1, Math.max(1,Math.min(a,b)-1)]).slice(0,2)
+              .concat([a===Math.max(a,b)?b:a]).filter((v,i,arr)=>arr.indexOf(v)===i)
+              .slice(0,4),
+  };
+}
+// 比大小簡化：只給兩個選項
+function makeCompare2() {
+  const m = maxNum();
+  let a = rint(1, m), b = rint(1, m);
+  while (a === b) b = rint(1, m);
+  const bigger = Math.random() < 0.5;
+  return {
+    type: bigger ? '比大小' : '比大小',
+    text: bigger ? `哪一個比較大？` : `哪一個比較小？`,
+    visual: ``,
+    hint: bigger ? '挑出大的那個數字 👆' : '挑出小的那個數字 👇',
+    answer: bigger ? Math.max(a,b) : Math.min(a,b),
+    options: shuffle([a, b]),
+    twoOptions: true,
+  };
+}
+
+// 產生題型 4：找規律
+function makePattern() {
+  const m = maxNum();
+  const start = rint(1, Math.max(2, m - 4));
+  const step = pick([1, 1, 2, 2, 3]);
+  const seq = [start, start+step, start+step*2];
+  const ans = start + step*3;
+  if (ans > m + 5) return makeAdd(); // fallback
+  return {
+    type: '找規律',
+    text: `${seq.join(' , ')} , ?`,
+    visual: '🔍 接下來是哪個數字呢？',
+    hint: `每次都增加 ${step} 喔！`,
+    answer: ans,
+    options: genNumberOptions(ans, m + 5),
+  };
+}
+
+// 產生題型 5：數數
+function makeCount() {
+  const m = Math.min(10, maxNum() + 2);
+  const n = rint(2, m);
+  const icon = pick(ANIMALS);
+  return {
+    type: '數一數',
+    text: `總共有幾隻 ${icon}？`,
+    visual: icon.repeat(n),
+    hint: '一個一個慢慢數！',
+    answer: n,
+    options: genNumberOptions(n, 12),
+  };
+}
+
+// 產生題型 6（高關卡）：分類邏輯
+function makeOddOne() {
+  // 找出哪一個跟其他不一樣
+  const useShape = Math.random() < 0.5;
+  if (useShape) {
+    const main = pick(SHAPES);
+    let odd = pick(SHAPES);
+    while (odd.emoji === main.emoji) odd = pick(SHAPES);
+    const items = [main.emoji, main.emoji, main.emoji, odd.emoji];
+    const shuffled = shuffle(items);
+    return {
+      type: '找不一樣',
+      text: '哪一個跟其他不一樣？',
+      visual: '',
+      hint: '仔細看每一個的形狀！',
+      answer: odd.emoji,
+      options: shuffled,
+      isEmoji: true,
+    };
+  } else {
+    // 動物 vs 水果
+    const animals = shuffle(ANIMALS).slice(0,3);
+    const fruit = pick(FRUITS);
+    const items = [...animals, fruit];
+    const shuffled = shuffle(items);
+    return {
+      type: '找不一樣',
+      text: '哪一個跟其他不一樣？',
+      visual: '',
+      hint: '其他三個都是動物喔！',
+      answer: fruit,
+      options: shuffled,
+      isEmoji: true,
+    };
+  }
+}
+
+// 題型 7：缺項加法 (3 + ? = 7)
+function makeMissing() {
+  const m = maxNum();
+  const total = rint(4, m);
+  const a = rint(1, total - 1);
+  const b = total - a;
+  const askFirst = Math.random() < 0.5;
+  return {
+    type: '找出空格',
+    text: askFirst ? `? + ${b} = ${total}` : `${a} + ? = ${total}`,
+    visual: '',
+    hint: '想想看：再加多少才會等於 ' + total + '？',
+    answer: askFirst ? a : b,
+    options: genNumberOptions(askFirst ? a : b, m),
+  };
+}
+
+// 題型 8：三數相加 (高關卡)
+function makeTripleAdd() {
+  const m = maxNum();
+  const a = rint(1, Math.floor(m/3));
+  const b = rint(1, Math.floor(m/3));
+  const c = rint(1, m - a - b);
+  const ans = a + b + c;
+  return {
+    type: '三個數相加',
+    text: `${a} + ${b} + ${c} = ?`,
+    visual: '',
+    hint: '先把前兩個加起來，再加最後一個！',
+    answer: ans,
+    options: genNumberOptions(ans, m + 5),
+  };
+}
+
+// 題型 9：減法找差 (? - 3 = 5)
+function makeMissingSub() {
+  const m = maxNum();
+  const result = rint(1, Math.floor(m * 0.7));
+  const sub = rint(1, Math.floor(m * 0.3));
+  const total = result + sub;
+  const askFirst = Math.random() < 0.5;
+  return {
+    type: '找出空格',
+    text: askFirst ? `? - ${sub} = ${result}` : `${total} - ? = ${result}`,
+    visual: '',
+    hint: askFirst ? '什麼數字減去 ' + sub + ' 等於 ' + result + '？' : '從 ' + total + ' 拿走多少才剩下 ' + result + '？',
+    answer: askFirst ? total : sub,
+    options: genNumberOptions(askFirst ? total : sub, m + 3),
+  };
+}
+
+// 題型 10：兩位數整十加減 (高關卡)
+function makeTens() {
+  const m = maxNum(); // 30 or 50
+  const a = rint(1, Math.floor(m/10)) * 10;
+  const b = rint(1, Math.floor(m/10)) * 10;
+  const isAdd = Math.random() < 0.5 && (a + b <= m);
+  if (isAdd) {
+    return {
+      type: '整十加法',
+      text: `${a} + ${b} = ?`,
+      visual: '',
+      hint: '十位數相加就好！',
+      answer: a + b,
+      options: genNumberOptions(a + b, m + 10),
+    };
+  } else {
+    const big = Math.max(a, b), small = Math.min(a, b);
+    if (big === small) return makeAdd();
+    return {
+      type: '整十減法',
+      text: `${big} - ${small} = ?`,
+      visual: '',
+      hint: '十位數相減！',
+      answer: big - small,
+      options: genNumberOptions(big - small, m),
+    };
+  }
+}
+
+// 數字選項產生器：4 個選項，包含正解
+function genNumberOptions(answer, maxRange) {
+  const opts = new Set([answer]);
+  let attempts = 0;
+  while (opts.size < 4 && attempts < 30) {
+    let cand = answer + rint(-3, 3);
+    if (cand < 0) cand = Math.abs(cand);
+    if (cand !== answer && cand <= maxRange + 3) opts.add(cand);
+    attempts++;
+  }
+  while (opts.size < 4) opts.add(rint(0, maxRange + 3));
+  return shuffle([...opts]);
+}
+
+// 根據關卡選擇題型
+function generateQuestion() {
+  const level = state.level;
+  let pool;
+  if (level === 1)      pool = ['count', 'add', 'compare', 'count'];
+  else if (level === 2) pool = ['add', 'sub', 'compare', 'count', 'pattern'];
+  else if (level === 3) pool = ['add', 'sub', 'pattern', 'compare', 'odd'];
+  else if (level === 4) pool = ['add', 'sub', 'pattern', 'odd', 'missing'];
+  else if (level === 5) pool = ['add', 'sub', 'missing', 'missingSub', 'triple', 'pattern', 'odd'];
+  else                  pool = ['triple', 'tens', 'missing', 'missingSub', 'pattern', 'add', 'sub'];
+
+  const t = pick(pool);
+  switch (t) {
+    case 'add': return makeAdd();
+    case 'sub': return makeSub();
+    case 'compare': return makeCompare2();
+    case 'pattern': return makePattern();
+    case 'count': return makeCount();
+    case 'odd': return makeOddOne();
+    case 'missing': return makeMissing();
+    case 'missingSub': return makeMissingSub();
+    case 'triple': return makeTripleAdd();
+    case 'tens': return makeTens();
+    default: return makeAdd();
+  }
+}
+
+// ============= 渲染 =============
+const $ = id => document.getElementById(id);
+
+function render() {
+  $('level').textContent = state.level;
+  $('score').textContent = state.score;
+  // stars row: show streak
+  let stars = '';
+  for (let i = 0; i < Math.min(state.streak, 5); i++) stars += '⭐';
+  $('starsRow').textContent = stars;
+
+  const q = state.current;
+  $('qtype').textContent = q.type;
+  $('question').textContent = q.text;
+  $('visual').textContent = q.visual || '';
+  $('hint').textContent = q.hint || '';
+  $('feedback').innerHTML = '&nbsp;';
+
+  const optsEl = $('options');
+  optsEl.innerHTML = '';
+  optsEl.style.gridTemplateColumns = q.twoOptions ? '1fr 1fr' : 'repeat(2, 1fr)';
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt c' + ((idx % 4) + 1);
+    btn.textContent = opt;
+    btn.dataset.value = opt;
+    btn.onclick = () => onAnswer(opt, btn);
+    optsEl.appendChild(btn);
+  });
+  $('nextBtn').disabled = true;
+}
+
+function onAnswer(value, btn) {
+  initAudio();
+  // 鎖住所有按鈕
+  document.querySelectorAll('.opt').forEach(b => b.onclick = null);
+  const correct = String(value) === String(state.current.answer);
+  state.totalAnswered++;
+  if (correct) {
+    btn.classList.add('correct');
+    state.score += 10 + state.streak * 2;  // 連對加成
+    state.streak++;
+    state.wrongStreak = 0;
+    state.totalCorrect++;
+    $('feedback').className = 'feedback good';
+    $('feedback').textContent = pick(['好棒！🎉','答對了！⭐','太厲害了！🌟','你好聰明！🥳','賓果！🎊']);
+    playCorrect();
+    confetti();
+    // 連對 5 題額外獎勵
+    if (state.streak > 0 && state.streak % 5 === 0) {
+      setTimeout(()=> {
+        $('feedback').textContent = '連對 ' + state.streak + ' 題！超棒！🏆';
+        playLevelUp();
+      }, 600);
+    }
+  } else {
+    btn.classList.add('wrong');
+    state.streak = 0;
+    state.wrongStreak++;
+    $('feedback').className = 'feedback bad';
+    $('feedback').textContent = '再試試看！正確答案是 ' + state.current.answer + ' 喔 💪';
+    playWrong();
+    // 顯示正解
+    document.querySelectorAll('.opt').forEach(b => {
+      if (String(b.dataset.value) === String(state.current.answer)) b.classList.add('correct');
+    });
+  }
+  state.questionsThisRound++;
+  render_topbar();
+  $('nextBtn').disabled = false;
+
+  // 難度自動調整 (1~6 關)
+  if (state.streak >= 3 && state.level < 6) {
+    state.level++;
+    if (state.level > state.maxLevelReached) state.maxLevelReached = state.level;
+    state.streak = 0;
+    setTimeout(showLevelUp, 1200);
+  } else if (state.wrongStreak >= 2 && state.level > 1) {
+    state.level--;
+    state.wrongStreak = 0;
+    setTimeout(()=> {
+      $('feedback').textContent = '我們先回到簡單一點的題目 😊';
+    }, 600);
+  }
+
+  // 是否達到本回合題數上限
+  if (state.questionsThisRound >= state.totalQuestions) {
+    setTimeout(showEndScreen, 1500);
+    $('nextBtn').disabled = true;
+  }
+}
+
+function render_topbar() {
+  $('level').textContent = state.level;
+  $('score').textContent = state.score;
+  let stars = '';
+  for (let i = 0; i < Math.min(state.streak, 5); i++) stars += '⭐';
+  $('starsRow').textContent = stars;
+  // 進度條
+  const pct = Math.min(100, Math.round(state.questionsThisRound / state.totalQuestions * 100));
+  $('progressFill').style.width = pct + '%';
+}
+
+function nextQuestion() {
+  state.current = generateQuestion();
+  render();
+}
+
+// ============= 模態框 =============
+function showLevelUp() {
+  $('modalEmoji').textContent = '🚀';
+  $('modalTitle').textContent = '升級囉！';
+  $('modalText').textContent = '你進入了第 ' + state.level + ' 關！題目會難一點點喔～';
+  $('modalScore').textContent = '目前分數：' + state.score;
+  $('modalBtn').textContent = '繼續挑戰 💪';
+  $('modalBg').classList.add('show');
+  playLevelUp();
+}
+
+$('modalBtn').onclick = () => {
+  $('modalBg').classList.remove('show');
+  if (state.questionsThisRound < state.totalQuestions) nextQuestion();
+};
+
+// 結束畫面
+function showEndScreen() {
+  const acc = state.totalAnswered > 0 ? Math.round(state.totalCorrect / state.totalAnswered * 100) : 0;
+  $('gameScreen').classList.add('hidden');
+  $('endScreen').classList.remove('hidden');
+
+  let emoji, title, comment;
+  if (acc >= 90) { emoji = '🏆'; title = '完美表現！'; comment = '你真是個小小數學家！太強了！'; }
+  else if (acc >= 70) { emoji = '🎉'; title = '太棒了！'; comment = '繼續加油，你越來越厲害了！'; }
+  else if (acc >= 50) { emoji = '🌟'; title = '做得好！'; comment = '有進步喔！再多練習就更棒！'; }
+  else { emoji = '🌱'; title = '完成了！'; comment = '慢慢來，數學需要多多練習～'; }
+
+  $('endEmoji').textContent = emoji;
+  $('endTitle').textContent = title;
+  $('endComment').textContent = comment;
+  $('endScore').textContent = state.score;
+  $('endCorrect').textContent = state.totalCorrect + '/' + state.totalAnswered;
+  $('endLevel').textContent = '第 ' + state.maxLevelReached + ' 關';
+  // 撒花
+  for (let i = 0; i < 3; i++) setTimeout(confetti, i * 400);
+  playLevelUp();
+}
+
+// 重新開始
+function restartGame() {
+  state.level = 1;
+  state.maxLevelReached = 1;
+  state.score = 0;
+  state.streak = 0;
+  state.wrongStreak = 0;
+  state.questionsThisRound = 0;
+  state.totalCorrect = 0;
+  state.totalAnswered = 0;
+  state.current = null;
+  $('endScreen').classList.add('hidden');
+  $('gameScreen').classList.add('hidden');
+  $('startScreen').classList.remove('hidden');
+}
+
+// 開始遊戲（選擇題數後）
+function startGame(count) {
+  state.totalQuestions = count;
+  state.questionsThisRound = 0;
+  state.totalCorrect = 0;
+  state.totalAnswered = 0;
+  state.score = 0;
+  state.streak = 0;
+  state.wrongStreak = 0;
+  state.level = 1;
+  state.maxLevelReached = 1;
+  $('startScreen').classList.add('hidden');
+  $('endScreen').classList.add('hidden');
+  $('gameScreen').classList.remove('hidden');
+  initAudio();
+  nextQuestion();
+  render_topbar();
+}
+
+// ============= 五彩紙花 =============
+function confetti() {
+  const colors = ['#ff7eb6','#ffd75e','#66d9a8','#66b8ff','#b388ff','#ff9966'];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = (Math.random() * 100) + '%';
+    c.style.background = colors[Math.floor(Math.random() * colors.length)];
+    c.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+    document.body.appendChild(c);
+    const duration = 1200 + Math.random() * 800;
+    const drift = (Math.random() - 0.5) * 200;
+    c.animate([
+      { transform: c.style.transform + ' translateY(0) translateX(0)', opacity: 1 },
+      { transform: c.style.transform + ' translateY(' + (window.innerHeight + 30) + 'px) translateX(' + drift + 'px)', opacity: 0.2 }
+    ], { duration: duration, easing: 'cubic-bezier(.2,.6,.4,1)' });
+    setTimeout(() => c.remove(), duration);
+  }
+}
+
+// ============= 控制 =============
+$('nextBtn').onclick = () => { nextQuestion(); };
+$('soundBtn').onclick = () => {
+  state.soundOn = !state.soundOn;
+  $('soundBtn').textContent = state.soundOn ? '🔊' : '🔇';
+  initAudio();
+};
+
+// 鍵盤支援：1-4 選項，Enter 下一題
+document.addEventListener('keydown', e => {
+  if (e.key >= '1' && e.key <= '4') {
+    const opts = document.querySelectorAll('.opt');
+    const idx = parseInt(e.key) - 1;
+    if (opts[idx] && opts[idx].onclick) opts[idx].click();
+  } else if (e.key === 'Enter' && !$('nextBtn').disabled) {
+    $('nextBtn').click();
+  }
+});
+
+// 開始畫面按鈕
+document.querySelectorAll('.count-btn').forEach(btn => {
+  btn.onclick = () => {
+    const count = parseInt(btn.dataset.count, 10);
+    startGame(count);
+  };
+});
+
+// 結束畫面：再玩一次
+$('restartBtn').onclick = restartGame;
+
+// 啟動：顯示開始畫面（不自動進入遊戲）
+</script>
+</body>
+</html>
