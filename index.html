@@ -14,32 +14,40 @@
     min-height: 100vh;
     display: flex; align-items: center; justify-content: center;
     padding: 12px;
-    user-select: none;
-    overflow-x: hidden;
+    user-select: none; overflow-x: hidden;
   }
+  /* ── Background decoration layer ── */
+  .bg-deco {
+    position: fixed; inset: 0;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+  .deco-sprite {
+    position: absolute;
+    opacity: 0.11;
+    animation: floatDeco var(--dur, 7s) ease-in-out infinite;
+    animation-delay: var(--delay, 0s);
+  }
+  @keyframes floatDeco {
+    0%, 100% { transform: translateY(0)    rotate(var(--r0, -6deg)); }
+    50%       { transform: translateY(-14px) rotate(var(--r1,  6deg)); }
+  }
+  /* ── Game card ── */
   .game {
     width: 100%; max-width: 640px;
     background: #fff;
     border-radius: 32px;
     box-shadow: 0 12px 0 #f9c4d2, 0 20px 50px rgba(160,80,120,.25);
     padding: 22px 22px 28px;
-    position: relative;
+    position: relative; z-index: 1;
   }
-  /* Header */
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
-  .badge {
-    background: #fff8db; border: 3px solid #ffd75e;
-    padding: 6px 14px; border-radius: 999px;
-    font-weight: 700; font-size: 1.1em;
-    display: flex; align-items: center; gap: 6px;
-    box-shadow: 0 3px 0 #f0c84a;
-  }
+  .badge { background: #fff8db; border: 3px solid #ffd75e; padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 1.1em; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 0 #f0c84a; }
   .badge.level { background: #e6f7ff; border-color: #66b8ff; box-shadow: 0 3px 0 #4ea3eb; }
   .badge.score { background: #ffe6f1; border-color: #ff7eb6; box-shadow: 0 3px 0 #e96aa1; }
   .stars-row { font-size: 1.6em; letter-spacing: 2px; min-height: 1.2em; }
-  /* Card */
+  /* ── Card ── */
   .card {
-    background: linear-gradient(180deg, #fffbef 0%, #fff 100%);
+    background: linear-gradient(180deg,#fffbef 0%,#fff 100%);
     border: 4px dashed #ffb6d5; border-radius: 24px;
     padding: 22px 16px; text-align: center;
     margin-bottom: 16px; min-height: 200px;
@@ -47,14 +55,7 @@
     justify-content: center; align-items: center;
     position: relative;
   }
-  .qtype {
-    position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
-    background: #b388ff; color: white;
-    padding: 4px 16px; border-radius: 999px;
-    font-size: 0.95em; font-weight: 700;
-    box-shadow: 0 3px 0 #8a5cd6; white-space: nowrap;
-  }
-  /* 題型標籤顏色 */
+  .qtype { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); background: #b388ff; color: white; padding: 4px 16px; border-radius: 999px; font-size: 0.95em; font-weight: 700; box-shadow: 0 3px 0 #8a5cd6; white-space: nowrap; }
   .qtype-clock   { background: #42a5f5 !important; box-shadow: 0 3px 0 #1976d2 !important; }
   .qtype-coin    { background: #ffb300 !important; box-shadow: 0 3px 0 #f57f17 !important; }
   .qtype-ordinal { background: #26c6da !important; box-shadow: 0 3px 0 #0097a7 !important; }
@@ -62,11 +63,10 @@
   .qtype-shape   { background: #26a69a !important; box-shadow: 0 3px 0 #00796b !important; }
   .qtype-logic   { background: #ff7043 !important; box-shadow: 0 3px 0 #d84315 !important; }
   .qtype-2digit  { background: #5c6bc0 !important; box-shadow: 0 3px 0 #3949ab !important; }
-
   .question { font-size: 2.6em; font-weight: 800; color: #3a2e5c; margin: 8px 0 4px; line-height: 1.2; }
   .visual { font-size: 2em; line-height: 1.4; margin: 6px 0; letter-spacing: 4px; word-spacing: 4px; }
   .hint { font-size: 1em; color: #8579a8; margin-top: 6px; }
-  /* Options */
+  /* ── Options ── */
   .options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .opt {
     background: #fff; border: 4px solid #b3e5fc; color: #1565a0;
@@ -83,25 +83,30 @@
   .opt.c4 { border-color: #d1c4e9; color: #4527a0; box-shadow: 0 5px 0 #a194c7; }
   .opt.correct { background: #c8f7c5 !important; border-color: #4caf50 !important; color: #1b5e20 !important; animation: pop .35s; }
   .opt.wrong   { background: #ffd6d6 !important; border-color: #e57373 !important; color: #c62828 !important; animation: shake .35s; }
+  /* Pulsing green highlight for correct answer on wrong attempt */
+  @keyframes correctPulse {
+    0%   { transform: scale(1);    box-shadow: 0 0 4px  4px rgba(76,175,80,.25), 0 5px 0 #388e3c; }
+    100% { transform: scale(1.07); box-shadow: 0 0 18px 6px rgba(76,175,80,.7),  0 5px 0 #388e3c; }
+  }
+  .opt.correct-hl {
+    background: linear-gradient(135deg,#b9f6ca,#e8f5e9) !important;
+    border-color: #43a047 !important;
+    color: #1b5e20 !important;
+    animation: correctPulse .65s ease-in-out infinite alternate !important;
+  }
   @keyframes pop   { 0%{transform:scale(1);}50%{transform:scale(1.12);}100%{transform:scale(1);} }
   @keyframes shake { 0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);} }
-  /* Feedback */
+  /* ── Feedback ── */
   .feedback { text-align: center; margin: 12px 0 6px; font-size: 1.4em; font-weight: 700; min-height: 1.5em; }
   .feedback.good { color: #2e7d32; }
   .feedback.bad  { color: #c62828; }
-  /* Next button */
-  .next {
-    display: block; margin: 6px auto 0;
-    background: #ff7eb6; color: white; border: none;
-    border-radius: 999px; padding: 14px 36px;
-    font-size: 1.3em; font-weight: 800; cursor: pointer;
-    box-shadow: 0 5px 0 #e96aa1; font-family: inherit; transition: transform .12s;
-  }
+  /* ── Next button ── */
+  .next { display: block; margin: 6px auto 0; background: #ff7eb6; color: white; border: none; border-radius: 999px; padding: 14px 36px; font-size: 1.3em; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #e96aa1; font-family: inherit; transition: transform .12s; }
   .next:active { transform: translateY(3px); box-shadow: 0 2px 0 #e96aa1; }
   .next:disabled { opacity: 0; pointer-events: none; }
-  /* Confetti */
+  /* ── Confetti ── */
   .confetti { position: fixed; pointer-events: none; top: -10px; width: 12px; height: 18px; z-index: 999; border-radius: 3px; }
-  /* Modal */
+  /* ── Modal ── */
   .modal-bg { position: fixed; inset: 0; background: rgba(60,30,80,.55); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
   .modal-bg.show { display: flex; }
   .modal { background: #fff; border-radius: 28px; padding: 28px 22px; text-align: center; max-width: 360px; width: 100%; box-shadow: 0 12px 0 #c4a4f0, 0 24px 60px rgba(80,40,120,.35); }
@@ -110,16 +115,16 @@
   .modal p { font-size: 1.15em; margin: 6px 0; color: #4a3d6e; }
   .modal button { margin-top: 16px; background: #66bb6a; color: white; border: none; border-radius: 999px; padding: 14px 32px; font-size: 1.2em; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #4f9e54; font-family: inherit; }
   .modal button:active { transform: translateY(3px); box-shadow: 0 2px 0 #4f9e54; }
-  /* Mascot */
+  /* ── Mascot ── */
   .mascot { font-size: 2.2em; text-align: center; margin-bottom: 8px; animation: bobble 2.5s ease-in-out infinite; }
   @keyframes bobble { 0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-6px) rotate(3deg);} }
-  /* Sound toggle */
+  /* ── Sound toggle ── */
   .sound-toggle { position: absolute; top: 18px; right: 18px; background: #fff; border: 3px solid #ddd; border-radius: 50%; width: 44px; height: 44px; font-size: 1.3em; cursor: pointer; }
-  /* 開始 / 結束畫面 */
+  /* ── Start / End screens ── */
   .start-screen, .end-screen { text-align: center; padding: 14px 6px 8px; }
   .start-screen h1, .end-screen h1 { font-size: 2em; color: #4527a0; margin-bottom: 4px; }
   .start-screen p, .end-screen p { color: #6a5d8a; margin: 4px 0 14px; font-size: 1.05em; }
-  .count-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0 8px; }
+  .count-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 16px 0 8px; }
   .count-btn { background: #fff; border: 4px solid #ffd75e; color: #b08900; border-radius: 22px; padding: 22px 4px; font-size: 1.4em; font-weight: 800; cursor: pointer; box-shadow: 0 5px 0 #f0c84a; font-family: inherit; line-height: 1.2; }
   .count-btn .num { display: block; font-size: 2em; margin-bottom: 2px; }
   .count-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #f0c84a; }
@@ -127,28 +132,29 @@
   .count-btn.b3 { border-color: #b388ff; color: #4527a0; box-shadow: 0 5px 0 #8a5cd6; }
   .stat-row { display: flex; justify-content: space-around; margin: 18px 0; flex-wrap: wrap; gap: 8px; }
   .stat-box { background: #fff8db; border: 3px solid #ffd75e; border-radius: 20px; padding: 10px 14px; min-width: 90px; }
-  .stat-box .label { font-size: 0.9em; color: #8a6d20; }
-  .stat-box .value { font-size: 1.6em; font-weight: 800; color: #b08900; }
-  .stat-box.s2 { background: #ffe6f1; border-color: #ff7eb6; }
-  .stat-box.s2 .label { color: #a23568; } .stat-box.s2 .value { color: #c2185b; }
-  .stat-box.s3 { background: #e6f7ff; border-color: #66b8ff; }
-  .stat-box.s3 .label { color: #3a73a8; } .stat-box.s3 .value { color: #1565a0; }
+  .stat-box .label { font-size: 0.9em; color: #8a6d20; } .stat-box .value { font-size: 1.6em; font-weight: 800; color: #b08900; }
+  .stat-box.s2 { background: #ffe6f1; border-color: #ff7eb6; } .stat-box.s2 .label{color:#a23568;} .stat-box.s2 .value{color:#c2185b;}
+  .stat-box.s3 { background: #e6f7ff; border-color: #66b8ff; } .stat-box.s3 .label{color:#3a73a8;} .stat-box.s3 .value{color:#1565a0;}
   .progress-bar { background: #f0e8ff; border-radius: 999px; height: 14px; overflow: hidden; margin: 10px 0 14px; border: 2px solid #d4c4ff; }
-  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff9966, #ff7eb6, #b388ff); width: 0%; transition: width .35s; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg,#ff9966,#ff7eb6,#b388ff); width: 0%; transition: width .35s; }
+  /* ── Version tag ── */
+  .version-tag { position: absolute; bottom: 10px; left: 16px; font-size: 0.68em; color: #cbbfe6; font-family: 'Courier New', monospace; font-weight: 700; letter-spacing: 0.5px; pointer-events: none; }
   .hidden { display: none !important; }
   @media (max-width: 420px) {
-    .question { font-size: 2.1em; }
-    .opt { font-size: 1.65em; padding: 16px 6px; }
+    .question { font-size: 2.1em; } .opt { font-size: 1.65em; padding: 16px 6px; }
     .badge { font-size: 0.95em; padding: 5px 10px; }
-    .count-btn { font-size: 1.1em; padding: 18px 2px; }
-    .count-btn .num { font-size: 1.7em; }
+    .count-btn { font-size: 1.1em; padding: 18px 2px; } .count-btn .num { font-size: 1.7em; }
   }
 </style>
 </head>
 <body>
+<!-- Background decorations -->
+<div class="bg-deco" id="bgDeco"></div>
+
 <div class="game">
   <button class="sound-toggle" id="soundBtn" title="開關音效">🔊</button>
   <div class="mascot">🦁🐰🐼🦊🐱</div>
+  <div class="version-tag">v0.0.1</div>
 
   <!-- 開始畫面 -->
   <div class="start-screen" id="startScreen">
@@ -199,35 +205,126 @@
   <div class="modal">
     <div class="big-emoji" id="modalEmoji">🎉</div>
     <h2 id="modalTitle">太厲害了！</h2>
-    <p id="modalText"></p>
-    <p id="modalScore"></p>
+    <p id="modalText"></p><p id="modalScore"></p>
     <button id="modalBtn">繼續挑戰！</button>
   </div>
 </div>
 
 <script>
+// ============= 背景角色 SVG =============
+const PIKACHU_SVG = `<svg width="72" height="78" viewBox="0 0 72 78" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="12,34 17,8 27,32" fill="#F7C900"/>
+  <polygon points="15,30 18,12 24,29" fill="#1a1a1a"/>
+  <polygon points="45,32 55,8 60,34" fill="#F7C900"/>
+  <polygon points="48,29 54,12 57,30" fill="#1a1a1a"/>
+  <circle cx="36" cy="48" r="26" fill="#F7C900"/>
+  <circle cx="25" cy="43" r="5.5" fill="#1a1a1a"/>
+  <circle cx="47" cy="43" r="5.5" fill="#1a1a1a"/>
+  <circle cx="26.5" cy="41" r="2" fill="white"/>
+  <circle cx="48.5" cy="41" r="2" fill="white"/>
+  <ellipse cx="36" cy="51" rx="2.5" ry="1.5" fill="#c87a3a"/>
+  <path d="M29,57 Q36,63 43,57" stroke="#1a1a1a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <circle cx="14" cy="54" r="8" fill="#FF5252" opacity="0.8"/>
+  <circle cx="58" cy="54" r="8" fill="#FF5252" opacity="0.8"/>
+  <path d="M64,62 L68,54 L64.5,54 L68.5,46" stroke="#F7C900" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+const CHARIZARD_SVG = `<svg width="72" height="90" viewBox="0 0 72 90" xmlns="http://www.w3.org/2000/svg">
+  <path d="M22,38 Q6,20 9,6 Q19,22 28,40 Z" fill="#5C9BDE"/>
+  <path d="M50,38 Q66,20 63,6 Q53,22 44,40 Z" fill="#5C9BDE"/>
+  <ellipse cx="36" cy="64" rx="20" ry="22" fill="#FF7043"/>
+  <ellipse cx="36" cy="67" rx="12" ry="15" fill="#FFD180"/>
+  <circle cx="36" cy="30" r="18" fill="#FF7043"/>
+  <polygon points="22,18 18,5 29,17" fill="#E64A19"/>
+  <polygon points="50,18 54,5 43,17" fill="#E64A19"/>
+  <circle cx="27" cy="27" r="4.5" fill="#1a1a1a"/>
+  <circle cx="45" cy="27" r="4.5" fill="#1a1a1a"/>
+  <circle cx="28.5" cy="25.5" r="1.8" fill="white"/>
+  <circle cx="46.5" cy="25.5" r="1.8" fill="white"/>
+  <circle cx="31" cy="34" r="2" fill="#cc4422"/>
+  <circle cx="41" cy="34" r="2" fill="#cc4422"/>
+  <path d="M52,80 Q62,77 59,66 Q68,70 64,58 Q72,61 67,50" stroke="#FF6D00" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M52,80 Q62,77 59,66 Q68,70 64,58" stroke="#FFC107" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  <circle cx="52" cy="82" r="7" fill="#FF6D00"/>
+  <circle cx="52" cy="82" r="4.5" fill="#FFC107"/>
+</svg>`;
+
+const GODZILLA_SVG = `<svg width="68" height="90" viewBox="0 0 68 90" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="14,28 8,14 20,26" fill="#2d5a3a"/>
+  <polygon points="14,42 7,28 21,40" fill="#2d5a3a"/>
+  <polygon points="13,55 6,42 20,53" fill="#2d5a3a"/>
+  <polygon points="11,68 4,55 18,66" fill="#2d5a3a"/>
+  <ellipse cx="36" cy="66" rx="22" ry="24" fill="#3d6b4a"/>
+  <ellipse cx="36" cy="70" rx="14" ry="18" fill="#4d8060"/>
+  <rect x="16" y="16" width="32" height="28" rx="9" fill="#3d6b4a"/>
+  <rect x="18" y="35" width="29" height="16" rx="5" fill="#2d5a3a"/>
+  <rect x="22" y="36" width="5" height="8" rx="2" fill="white"/>
+  <rect x="30" y="36" width="5" height="8" rx="2" fill="white"/>
+  <rect x="38" y="36" width="5" height="8" rx="2" fill="white"/>
+  <circle cx="25" cy="26" r="5.5" fill="#FF1744"/>
+  <circle cx="43" cy="26" r="5.5" fill="#FF1744"/>
+  <circle cx="25" cy="26" r="3" fill="#1a1a1a"/>
+  <circle cx="43" cy="26" r="3" fill="#1a1a1a"/>
+  <circle cx="26" cy="25" r="1.2" fill="#ff8888"/>
+  <ellipse cx="11" cy="66" rx="7" ry="14" fill="#3d6b4a" transform="rotate(-15,11,66)"/>
+  <ellipse cx="61" cy="66" rx="7" ry="14" fill="#3d6b4a" transform="rotate(15,61,66)"/>
+  <path d="M48,86 Q60,88 66,78 Q62,72 57,80 Q60,68 52,68" fill="#3d6b4a"/>
+</svg>`;
+
+// ============= 初始化背景裝飾 =============
+function initBgDecos() {
+  const container = document.getElementById('bgDeco');
+  const chars = [
+    { svg: PIKACHU_SVG,   count: 4, baseSize: 70 },
+    { svg: CHARIZARD_SVG, count: 4, baseSize: 72 },
+    { svg: GODZILLA_SVG,  count: 4, baseSize: 68 },
+  ];
+  // 邊緣位置，避開中央卡片
+  const positions = [
+    [1,2],[82,2],[1,55],[84,55],
+    [38,0],[42,84],[15,22],[70,22],
+    [8,82],[78,80],[0,38],[87,38],
+  ];
+  let idx = 0;
+  chars.forEach(({svg, count, baseSize}) => {
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'deco-sprite';
+      el.innerHTML = svg;
+      const [px, py] = positions[idx % positions.length];
+      el.style.left = (px + rint(-4,4)) + 'vw';
+      el.style.top  = (py + rint(-4,4)) + 'vh';
+      el.style.width = (baseSize + rint(-12,18)) + 'px';
+      el.style.setProperty('--delay', (Math.random()*5).toFixed(1)+'s');
+      el.style.setProperty('--dur',   (6+Math.random()*5).toFixed(1)+'s');
+      el.style.setProperty('--r0', rint(-10,-2)+'deg');
+      el.style.setProperty('--r1', rint(2,10)+'deg');
+      container.appendChild(el);
+      idx++;
+    }
+  });
+}
+
 // ============= 狀態 =============
 const state = {
-  level: 1, maxLevelReached: 1,
-  score: 0, streak: 0, wrongStreak: 0,
-  questionsThisRound: 0, totalQuestions: 10,
-  totalCorrect: 0, totalAnswered: 0,
-  soundOn: true, current: null,
+  level:1, maxLevelReached:1,
+  score:0, streak:0, wrongStreak:0,
+  questionsThisRound:0, totalQuestions:10,
+  totalCorrect:0, totalAnswered:0,
+  soundOn:true, current:null,
 };
 
 // ============= 音效 =============
 let audioCtx = null;
 function initAudio() {
-  if (!audioCtx) try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+  if (!audioCtx) try { audioCtx = new (window.AudioContext||window.webkitAudioContext)(); } catch(e) {}
 }
-function beep(freq, dur=0.18, type='sine', vol=0.18) {
-  if (!state.soundOn || !audioCtx) return;
-  const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-  osc.type = type; osc.frequency.value = freq; gain.gain.value = vol;
-  osc.connect(gain).connect(audioCtx.destination);
-  osc.start();
-  gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
-  osc.stop(audioCtx.currentTime + dur);
+function beep(freq,dur=0.18,type='sine',vol=0.18) {
+  if (!state.soundOn||!audioCtx) return;
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type=type; o.frequency.value=freq; g.gain.value=vol;
+  o.connect(g).connect(audioCtx.destination);
+  o.start(); g.gain.exponentialRampToValueAtTime(0.0001,audioCtx.currentTime+dur); o.stop(audioCtx.currentTime+dur);
 }
 function playCorrect() { beep(660,.12); setTimeout(()=>beep(880,.18),110); }
 function playWrong()   { beep(220,.25,'sawtooth',.12); }
@@ -236,449 +333,169 @@ function playLevelUp() { [523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f
 // ============= 資料 =============
 const ANIMALS = ['🐰','🐱','🐶','🐼','🦊','🐯','🐷','🐸','🐵','🦁','🐮','🐭'];
 const FRUITS  = ['🍎','🍌','🍊','🍓','🍇','🍉','🍑','🍍','🥝','🥭'];
-const SHAPES  = [
-  {emoji:'🔴',name:'圓形'},
-  {emoji:'🔺',name:'三角形'},
-  {emoji:'🟦',name:'正方形'},
-  {emoji:'⭐',name:'星形'},
-  {emoji:'❤️',name:'愛心'},
-];
-// 幾何形狀（含性質）
-const GEO = [
-  {name:'三角形', emoji:'🔺', sides:3, corners:3},
-  {name:'正方形', emoji:'🟦', sides:4, corners:4},
-  {name:'長方形', emoji:'🟫', sides:4, corners:4},
-  {name:'圓形',   emoji:'⭕', sides:0, corners:0},
-];
-// 圖形規律可用的形狀
+const SHAPES  = [{emoji:'🔴',name:'圓形'},{emoji:'🔺',name:'三角形'},{emoji:'🟦',name:'正方形'},{emoji:'⭐',name:'星形'},{emoji:'❤️',name:'愛心'}];
+const GEO     = [{name:'三角形',emoji:'🔺',sides:3,corners:3},{name:'正方形',emoji:'🟦',sides:4,corners:4},{name:'長方形',emoji:'🟫',sides:4,corners:4},{name:'圓形',emoji:'⭕',sides:0,corners:0}];
 const PSHAPES = ['🔺','🟦','⭕','🔶','🟥','🔷'];
-// 時鐘 emoji
 const CLOCK_W = ['🕐','🕑','🕒','🕓','🕔','🕕','🕖','🕗','🕘','🕙','🕚','🕛'];
 const CLOCK_H = ['🕜','🕝','🕞','🕟','🕠','🕡','🕢','🕣','🕤','🕥','🕦','🕧'];
 
-// ============= 工具函式 =============
 function rint(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function pick(arr){ return arr[rint(0,arr.length-1)]; }
-function shuffle(arr){
-  const a=arr.slice();
-  for(let i=a.length-1;i>0;i--){const j=rint(0,i);[a[i],a[j]]=[a[j],a[i]];}
-  return a;
-}
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=rint(0,i);[a[i],a[j]]=[a[j],a[i]];} return a; }
 function maxNum(){ return [5,10,15,20,30,50][state.level-1]||50; }
-
-// ============= 數字選項產生器 =============
-function genOpts(answer, maxRange){
-  const s=new Set([answer]);
-  let t=0;
-  while(s.size<4&&t<40){
-    let c=answer+rint(-4,4);
-    if(c<0)c=Math.abs(c);
-    if(c!==answer&&c<=maxRange+4)s.add(c);
-    t++;
-  }
+function genOpts(answer,maxRange){
+  const s=new Set([answer]); let t=0;
+  while(s.size<4&&t<40){let c=answer+rint(-4,4);if(c<0)c=Math.abs(c);if(c!==answer&&c<=maxRange+4)s.add(c);t++;}
   while(s.size<4)s.add(rint(0,maxRange+4));
   return shuffle([...s]);
 }
 
-// =============================================
-// ============= 題目產生器 ====================
-// =============================================
-
-// 1. 加法（個位）
+// ============= 題目產生器 =============
 function makeAdd(){
-  const m=maxNum();
-  const a=rint(1,Math.max(2,Math.floor(m/2))), b=rint(1,m-a);
-  const icon=pick(FRUITS);
-  return {
-    type:'加法',
-    text:`${a} + ${b} = ?`,
-    visual: icon.repeat(Math.min(a,7))+(a>7?`(${a})`:'') + ' + ' + icon.repeat(Math.min(b,7))+(b>7?`(${b})`:''),
-    hint:'把兩堆加起來，總共有幾個？',
-    answer:a+b, options:genOpts(a+b,m+2),
-  };
+  const m=maxNum(),a=rint(1,Math.max(2,Math.floor(m/2))),b=rint(1,m-a),icon=pick(FRUITS);
+  return {type:'加法',text:`${a} + ${b} = ?`,visual:icon.repeat(Math.min(a,7))+(a>7?`(${a})`:'')+ ' + '+icon.repeat(Math.min(b,7))+(b>7?`(${b})`:''),hint:'把兩堆加起來，總共有幾個？',answer:a+b,options:genOpts(a+b,m+2)};
 }
-
-// 2. 減法（個位）
 function makeSub(){
-  const m=maxNum();
-  const a=rint(2,m), b=rint(1,a);
-  const icon=pick(FRUITS);
-  return {
-    type:'減法',
-    text:`${a} - ${b} = ?`,
-    visual: icon.repeat(Math.min(a,7))+(a>7?`(${a})`:'') + ' 拿走 '+b+' 個',
-    hint:'把一些拿走後，還剩下幾個？',
-    answer:a-b, options:genOpts(a-b,m),
-  };
+  const m=maxNum(),a=rint(2,m),b=rint(1,a),icon=pick(FRUITS);
+  return {type:'減法',text:`${a} - ${b} = ?`,visual:icon.repeat(Math.min(a,7))+(a>7?`(${a})`:'')+ ' 拿走 '+b+' 個',hint:'把一些拿走後，還剩下幾個？',answer:a-b,options:genOpts(a-b,m)};
 }
-
-// 3. 雙位數不進位加法
 function makeAdd2(){
-  const lv=state.level;
-  const maxT = lv<=4 ? 4 : 7;
-  const ta=rint(1,maxT), tb=rint(1,9-ta);
-  const oa=rint(0,9),    ob=rint(0,9-oa);
-  const a=ta*10+oa, b=tb*10+ob, ans=a+b;
-  return {
-    type:'雙位數加法', qtypeClass:'qtype-2digit',
-    text:`${a} + ${b} = ?`,
-    visual:'',
-    hint:`個位：${oa}＋${ob}＝${oa+ob}，十位：${ta}＋${tb}＝${ta+tb}`,
-    answer:ans, options:genOpts(ans,99),
-  };
+  const lv=state.level,maxT=lv<=4?4:7;
+  const ta=rint(1,maxT),tb=rint(1,9-ta),oa=rint(0,9),ob=rint(0,9-oa);
+  const a=ta*10+oa,b=tb*10+ob,ans=a+b;
+  return {type:'雙位數加法',qtypeClass:'qtype-2digit',text:`${a} + ${b} = ?`,visual:'',hint:`個位：${oa}＋${ob}＝${oa+ob}，十位：${ta}＋${tb}＝${ta+tb}`,answer:ans,options:genOpts(ans,99)};
 }
-
-// 4. 雙位數不借位減法
 function makeSub2(){
-  const lv=state.level;
-  const maxT = lv<=4 ? 5 : 9;
-  const ta=rint(2,maxT), tb=rint(1,ta-1);
-  const oa=rint(1,9),    ob=rint(0,oa);
-  const a=ta*10+oa, b=tb*10+ob, ans=a-b;
-  return {
-    type:'雙位數減法', qtypeClass:'qtype-2digit',
-    text:`${a} - ${b} = ?`,
-    visual:'',
-    hint:`個位：${oa}－${ob}＝${oa-ob}，十位：${ta}－${tb}＝${ta-tb}`,
-    answer:ans, options:genOpts(ans,90),
-  };
+  const lv=state.level,maxT=lv<=4?5:9;
+  const ta=rint(2,maxT),tb=rint(1,ta-1),oa=rint(1,9),ob=rint(0,oa);
+  const a=ta*10+oa,b=tb*10+ob,ans=a-b;
+  return {type:'雙位數減法',qtypeClass:'qtype-2digit',text:`${a} - ${b} = ?`,visual:'',hint:`個位：${oa}－${ob}＝${oa-ob}，十位：${ta}－${tb}＝${ta-tb}`,answer:ans,options:genOpts(ans,90)};
 }
-
-// 5. 比大小
 function makeCompare(){
-  const m=maxNum();
-  let a=rint(1,m), b=rint(1,m);
-  while(a===b) b=rint(1,m);
+  const m=maxNum();let a=rint(1,m),b=rint(1,m);while(a===b)b=rint(1,m);
   const bigger=Math.random()<.5;
-  return {
-    type:'比大小',
-    text: bigger ? '哪一個比較大？' : '哪一個比較小？',
-    visual:'',
-    hint: bigger ? '挑出大的那個數字 👆' : '挑出小的那個數字 👇',
-    answer: bigger ? Math.max(a,b) : Math.min(a,b),
-    options:shuffle([a,b]), twoOptions:true,
-  };
+  return {type:'比大小',text:bigger?'哪一個比較大？':'哪一個比較小？',visual:'',hint:bigger?'挑出大的那個數字 👆':'挑出小的那個數字 👇',answer:bigger?Math.max(a,b):Math.min(a,b),options:shuffle([a,b]),twoOptions:true};
 }
-
-// 6. 前後數
 function makeBeforeAfter(){
-  const m=maxNum();
-  const n=rint(2,m-1);
-  const before=Math.random()<.5;
-  return {
-    type:'前後數', qtypeClass:'qtype-logic',
-    text: before ? `${n} 的前一個數是？` : `${n} 的後一個數是？`,
-    visual: before ? `❓ , ${n} , ${n+1}` : `${n-1} , ${n} , ❓`,
-    hint: before ? `比 ${n} 少 1 的是？` : `比 ${n} 多 1 的是？`,
-    answer: before ? n-1 : n+1,
-    options: genOpts(before?n-1:n+1, m+1),
-  };
+  const m=maxNum(),n=rint(2,m-1),before=Math.random()<.5;
+  return {type:'前後數',qtypeClass:'qtype-logic',text:before?`${n} 的前一個數是？`:`${n} 的後一個數是？`,visual:before?`❓ , ${n} , ${n+1}`:`${n-1} , ${n} , ❓`,hint:before?`比 ${n} 少 1 的是？`:`比 ${n} 多 1 的是？`,answer:before?n-1:n+1,options:genOpts(before?n-1:n+1,m+1)};
 }
-
-// 7. 奇數 / 偶數
 function makeOddEven(){
-  const m=Math.min(20,maxNum());
-  const n=rint(1,m);
-  const odd=n%2!==0;
-  return {
-    type:'奇偶數', qtypeClass:'qtype-logic',
-    text:`${n} 是？`,
-    visual: odd
-      ? '● '.repeat(n).trim() + '（不能平分）'
-      : '●●'.repeat(n/2) + '（可以平分）',
-    hint: odd ? '不能被2平分的就是奇數！' : '可以被2平分的就是偶數！',
-    answer: odd ? '奇數' : '偶數',
-    options: ['奇數','偶數'], twoOptions:true,
-  };
+  const m=Math.min(20,maxNum()),n=rint(1,m),odd=n%2!==0;
+  return {type:'奇偶數',qtypeClass:'qtype-logic',text:`${n} 是？`,visual:n<=10?'🔵'.repeat(n):'',hint:odd?'不能被 2 平分的就是奇數！':'可以被 2 平分的就是偶數！',answer:odd?'奇數':'偶數',options:['奇數','偶數'],twoOptions:true};
 }
-
-// 8. 找規律（數字）
 function makePattern(){
-  const m=maxNum();
-  const start=rint(1,Math.max(2,m-4));
-  const step=pick([1,1,2,2,3]);
-  const seq=[start,start+step,start+step*2];
-  const ans=start+step*3;
-  if(ans>m+5) return makeAdd();
-  return {
-    type:'找規律',
-    text:`${seq.join(' , ')} , ?`,
-    visual:'🔍 接下來是哪個數字？',
-    hint:`每次增加 ${step} 喔！`,
-    answer:ans, options:genOpts(ans,m+5),
-  };
+  const m=maxNum(),start=rint(1,Math.max(2,m-4)),step=pick([1,1,2,2,3]);
+  const seq=[start,start+step,start+step*2],ans=start+step*3;
+  if(ans>m+5)return makeAdd();
+  return {type:'找規律',text:`${seq.join(' , ')} , ?`,visual:'🔍 接下來是哪個數字？',hint:`每次增加 ${step} 喔！`,answer:ans,options:genOpts(ans,m+5)};
 }
-
-// 9. 圖形規律
 function makeShapePattern(){
-  const pool=shuffle(PSHAPES);
-  const isAB=Math.random()<.6;
-  let s1,s2,s3,ans,text;
+  const pool=shuffle(PSHAPES),isAB=Math.random()<.6;
   if(isAB){
-    [s1,s2]=pool;
-    text=`${s1} ${s2} ${s1} ${s2} ${s1} ？`;
-    ans=s2;
-    return {
-      type:'圖形規律', qtypeClass:'qtype-shape',
-      text, visual:'', hint:'兩個一組，重複排列！', answer:ans,
-      options:shuffle([s2,s1,...shuffle(PSHAPES.filter(s=>s!==s1&&s!==s2)).slice(0,2)]),
-    };
+    const[s1,s2]=pool;const ans=s2;
+    return {type:'圖形規律',qtypeClass:'qtype-shape',text:`${s1} ${s2} ${s1} ${s2} ${s1} ？`,visual:'',hint:'兩個一組，重複排列！',answer:ans,options:shuffle([s2,s1,...shuffle(PSHAPES.filter(s=>s!==s1&&s!==s2)).slice(0,2)])};
   } else {
-    [s1,s2,s3]=pool;
-    text=`${s1} ${s2} ${s3} ${s1} ${s2} ？`;
-    ans=s3;
-    return {
-      type:'圖形規律', qtypeClass:'qtype-shape',
-      text, visual:'', hint:'三個一組，重複排列！', answer:ans,
-      options:shuffle([s3,s1,s2,...shuffle(PSHAPES.filter(s=>![s1,s2,s3].includes(s))).slice(0,1)]),
-    };
+    const[s1,s2,s3]=pool;const ans=s3;
+    return {type:'圖形規律',qtypeClass:'qtype-shape',text:`${s1} ${s2} ${s3} ${s1} ${s2} ？`,visual:'',hint:'三個一組，重複排列！',answer:ans,options:shuffle([s3,s1,s2,...shuffle(PSHAPES.filter(s=>![s1,s2,s3].includes(s))).slice(0,1)])};
   }
 }
-
-// 10. 數一數（動物）
 function makeCount(){
-  const m=Math.min(10,maxNum()+2);
-  const n=rint(2,m), icon=pick(ANIMALS);
-  return {
-    type:'數一數',
-    text:`總共有幾隻 ${icon}？`,
-    visual:icon.repeat(n),
-    hint:'一個一個慢慢數！',
-    answer:n, options:genOpts(n,12),
-  };
+  const m=Math.min(10,maxNum()+2),n=rint(2,m),icon=pick(ANIMALS);
+  return {type:'數一數',text:`總共有幾隻 ${icon}？`,visual:icon.repeat(n),hint:'一個一個慢慢數！',answer:n,options:genOpts(n,12)};
 }
-
-// 11. 數形狀
 function makeShapeCount(){
-  const targets=[{e:'🔺',n:'三角形'},{e:'🟦',n:'正方形'},{e:'⭕',n:'圓形'}];
-  const target=pick(targets);
-  const other=pick(targets.filter(s=>s.e!==target.e));
-  const tc=rint(2,5), oc=rint(1,4);
-  const items=shuffle([...Array(tc).fill(target.e),...Array(oc).fill(other.e)]);
-  return {
-    type:'數形狀', qtypeClass:'qtype-shape',
-    text:`有幾個${target.n}？`,
-    visual:items.join(' '),
-    hint:`只數${target.n}，其他不算！`,
-    answer:tc, options:genOpts(tc,tc+oc+1),
-  };
+  const tgts=[{e:'🔺',n:'三角形'},{e:'🟦',n:'正方形'},{e:'⭕',n:'圓形'}];
+  const t=pick(tgts),o=pick(tgts.filter(s=>s.e!==t.e)),tc=rint(2,5),oc=rint(1,4);
+  return {type:'數形狀',qtypeClass:'qtype-shape',text:`有幾個${t.n}？`,visual:shuffle([...Array(tc).fill(t.e),...Array(oc).fill(o.e)]).join(' '),hint:`只數${t.n}，其他不算！`,answer:tc,options:genOpts(tc,tc+oc+1)};
 }
-
-// 12. 幾何形狀性質
 function makeShapeProps(){
   const shape=pick(GEO);
   if(shape.sides===0){
     const askS=Math.random()<.5;
-    return {
-      type:'幾何形狀', qtypeClass:'qtype-shape',
-      text: askS ? `⭕ 有幾條邊？` : `⭕ 有幾個角？`,
-      visual:'圓形是圓弧的喔 〜',
-      hint:'圓形沒有邊也沒有角！',
-      answer:0, options:shuffle([0,1,2,3]),
-    };
+    return {type:'幾何形狀',qtypeClass:'qtype-shape',text:askS?`⭕ 有幾條邊？`:`⭕ 有幾個角？`,visual:'圓形是圓弧的喔 〜',hint:'圓形沒有邊也沒有角！',answer:0,options:shuffle([0,1,2,3])};
   }
-  const askC=Math.random()<.5;
-  const ans=askC?shape.corners:shape.sides;
-  const prop=askC?'角':'邊';
-  return {
-    type:'幾何形狀', qtypeClass:'qtype-shape',
-    text:`${shape.emoji} 有幾個${prop}？`,
-    visual:`這是${shape.name}`,
-    hint:`${shape.name}有 ${ans} 個${prop}`,
-    answer:ans, options:genOpts(ans,6),
-  };
+  const askC=Math.random()<.5,ans=askC?shape.corners:shape.sides,prop=askC?'角':'邊';
+  return {type:'幾何形狀',qtypeClass:'qtype-shape',text:`${shape.emoji} 有幾個${prop}？`,visual:`這是${shape.name}`,hint:`${shape.name}有 ${ans} 個${prop}`,answer:ans,options:genOpts(ans,6)};
 }
-
-// 13. 找不一樣（分類邏輯）
 function makeOddOne(){
-  const useShape=Math.random()<.5;
-  if(useShape){
-    const main=pick(SHAPES);
-    let odd=pick(SHAPES);
-    while(odd.emoji===main.emoji) odd=pick(SHAPES);
-    return {
-      type:'找不一樣',
-      text:'哪一個跟其他不一樣？', visual:'',
-      hint:'仔細看每一個的形狀！',
-      answer:odd.emoji,
-      options:shuffle([main.emoji,main.emoji,main.emoji,odd.emoji]),
-    };
+  if(Math.random()<.5){
+    const main=pick(SHAPES);let odd=pick(SHAPES);while(odd.emoji===main.emoji)odd=pick(SHAPES);
+    return {type:'找不一樣',text:'哪一個跟其他不一樣？',visual:'',hint:'仔細看每一個的形狀！',answer:odd.emoji,options:shuffle([main.emoji,main.emoji,main.emoji,odd.emoji])};
   } else {
-    const animals=shuffle(ANIMALS).slice(0,3);
-    const fruit=pick(FRUITS);
-    return {
-      type:'找不一樣',
-      text:'哪一個跟其他不一樣？', visual:'',
-      hint:'其他三個都是動物喔！',
-      answer:fruit,
-      options:shuffle([...animals,fruit]),
-    };
+    const animals=shuffle(ANIMALS).slice(0,3),fruit=pick(FRUITS);
+    return {type:'找不一樣',text:'哪一個跟其他不一樣？',visual:'',hint:'其他三個都是動物喔！',answer:fruit,options:shuffle([...animals,fruit])};
   }
 }
-
-// 14. 湊數（數的分解）
 function makeBond(){
-  const m=maxNum();
-  const total=state.level<=2 ? 10 : rint(6,Math.min(15,m));
-  const a=rint(1,total-1), b=total-a;
-  return {
-    type:'湊數', qtypeClass:'qtype-bond',
-    text:`${a} + ? = ${total}`,
-    visual:'🔵'.repeat(Math.min(a,8))+(a>8?`(${a}個)`:'') + ' ＋ ❓ ＝ '+total,
-    hint:`${total} 減掉 ${a} 就是答案！`,
-    answer:b, options:genOpts(b,total+2),
-  };
+  const m=maxNum(),total=state.level<=2?10:rint(6,Math.min(15,m)),a=rint(1,total-1),b=total-a;
+  return {type:'湊數',qtypeClass:'qtype-bond',text:`${a} + ? = ${total}`,visual:'🔵'.repeat(Math.min(a,8))+(a>8?`(${a}個)`:'')+ ' ＋ ❓ ＝ '+total,hint:`${total} 減掉 ${a} 就是答案！`,answer:b,options:genOpts(b,total+2)};
 }
-
-// 15. 缺項加法
 function makeMissing(){
-  const m=maxNum();
-  const total=rint(4,m);
-  const a=rint(1,total-1), b=total-a;
-  const askFirst=Math.random()<.5;
-  return {
-    type:'找出空格',
-    text: askFirst ? `? + ${b} = ${total}` : `${a} + ? = ${total}`,
-    visual:'', hint:`再加多少才等於 ${total}？`,
-    answer: askFirst?a:b, options:genOpts(askFirst?a:b,m),
-  };
+  const m=maxNum(),total=rint(4,m),a=rint(1,total-1),b=total-a,askFirst=Math.random()<.5;
+  return {type:'找出空格',text:askFirst?`? + ${b} = ${total}`:`${a} + ? = ${total}`,visual:'',hint:`再加多少才等於 ${total}？`,answer:askFirst?a:b,options:genOpts(askFirst?a:b,m)};
 }
-
-// 16. 缺項減法
 function makeMissingSub(){
-  const m=maxNum();
-  const r=rint(1,Math.floor(m*.7)), s=rint(1,Math.floor(m*.3)), t=r+s;
-  const askFirst=Math.random()<.5;
-  return {
-    type:'找出空格',
-    text: askFirst ? `? - ${s} = ${r}` : `${t} - ? = ${r}`,
-    visual:'',
-    hint: askFirst ? `什麼數字減 ${s} 等於 ${r}？` : `從 ${t} 拿走多少剩下 ${r}？`,
-    answer: askFirst?t:s, options:genOpts(askFirst?t:s,m+3),
-  };
+  const m=maxNum(),r=rint(1,Math.floor(m*.7)),s=rint(1,Math.floor(m*.3)),t=r+s,askFirst=Math.random()<.5;
+  return {type:'找出空格',text:askFirst?`? - ${s} = ${r}`:`${t} - ? = ${r}`,visual:'',hint:askFirst?`什麼數字減 ${s} 等於 ${r}？`:`從 ${t} 拿走多少剩下 ${r}？`,answer:askFirst?t:s,options:genOpts(askFirst?t:s,m+3)};
 }
-
-// 17. 三數相加
 function makeTriple(){
-  const m=maxNum();
-  const a=rint(1,Math.floor(m/3)), b=rint(1,Math.floor(m/3)), c=rint(1,m-a-b);
-  return {
-    type:'三個數相加',
-    text:`${a} + ${b} + ${c} = ?`,
-    visual:'', hint:'先加前兩個，再加最後一個！',
-    answer:a+b+c, options:genOpts(a+b+c,m+5),
-  };
+  const m=maxNum(),a=rint(1,Math.floor(m/3)),b=rint(1,Math.floor(m/3)),c=rint(1,m-a-b);
+  return {type:'三個數相加',text:`${a} + ${b} + ${c} = ?`,visual:'',hint:'先加前兩個，再加最後一個！',answer:a+b+c,options:genOpts(a+b+c,m+5)};
 }
-
-// 18. 整十加減
 function makeTens(){
-  const m=maxNum();
-  const a=rint(1,Math.floor(m/10))*10, b=rint(1,Math.floor(m/10))*10;
+  const m=maxNum(),a=rint(1,Math.floor(m/10))*10,b=rint(1,Math.floor(m/10))*10;
   const isAdd=Math.random()<.5&&(a+b<=m);
-  if(isAdd) return {type:'整十加法',text:`${a} + ${b} = ?`,visual:'',hint:'十位數相加！',answer:a+b,options:genOpts(a+b,m+10)};
-  const big=Math.max(a,b), sm=Math.min(a,b);
-  if(big===sm) return makeAdd();
+  if(isAdd)return {type:'整十加法',text:`${a} + ${b} = ?`,visual:'',hint:'十位數相加！',answer:a+b,options:genOpts(a+b,m+10)};
+  const big=Math.max(a,b),sm=Math.min(a,b);if(big===sm)return makeAdd();
   return {type:'整十減法',text:`${big} - ${sm} = ?`,visual:'',hint:'十位數相減！',answer:big-sm,options:genOpts(big-sm,m)};
 }
-
-// 19. 序數
 function makeOrdinal(){
-  const n=rint(3,5);
-  const items=shuffle(ANIMALS).slice(0,n);
-  const pos=rint(1,n);
-  const ords=['第1個','第2個','第3個','第4個','第5個'];
-  const target=items[pos-1];
-  const askWhat=Math.random()<.5;
-  if(askWhat){
-    return {
-      type:'序數', qtypeClass:'qtype-ordinal',
-      text:`${ords[pos-1]}是什麼？`,
-      visual:items.join('  '),
-      hint:`從左邊數到第 ${pos} 個！`,
-      answer:target,
-      options:shuffle([target,...shuffle(ANIMALS.filter(a=>a!==target)).slice(0,3)]),
-    };
+  const n=rint(3,5),items=shuffle(ANIMALS).slice(0,n),pos=rint(1,n);
+  const ords=['第1個','第2個','第3個','第4個','第5個'],target=items[pos-1];
+  if(Math.random()<.5){
+    return {type:'序數',qtypeClass:'qtype-ordinal',text:`${ords[pos-1]}是什麼？`,visual:items.join('  '),hint:`從左邊數到第 ${pos} 個！`,answer:target,options:shuffle([target,...shuffle(ANIMALS.filter(a=>a!==target)).slice(0,3)])};
   } else {
-    const ansOrd=ords[pos-1];
-    const wrongs=ords.filter((_,i)=>i!==pos-1).slice(0,3);
-    return {
-      type:'序數', qtypeClass:'qtype-ordinal',
-      text:`${target} 是第幾個？`,
-      visual:items.join('  '),
-      hint:'從左邊一個一個數！',
-      answer:ansOrd,
-      options:shuffle([ansOrd,...wrongs]),
-    };
+    const ansOrd=ords[pos-1],wrongs=ords.filter((_,i)=>i!==pos-1).slice(0,3);
+    return {type:'序數',qtypeClass:'qtype-ordinal',text:`${target} 是第幾個？`,visual:items.join('  '),hint:'從左邊一個一個數！',answer:ansOrd,options:shuffle([ansOrd,...wrongs])};
   }
 }
-
-// 20. 看時鐘
 function makeClock(){
-  const h=rint(1,12);
-  const half=state.level>=3&&Math.random()<.45;
-  const emoji=half?CLOCK_H[h-1]:CLOCK_W[h-1];
-  const ans=half?`${h}點半`:`${h}點`;
+  const h=rint(1,12),half=state.level>=3&&Math.random()<.45;
+  const emoji=half?CLOCK_H[h-1]:CLOCK_W[h-1],ans=half?`${h}點半`:`${h}點`;
   const whs=shuffle([1,2,3,4,5,6,7,8,9,10,11,12].filter(x=>x!==h)).slice(0,3);
-  return {
-    type:'看時鐘', qtypeClass:'qtype-clock',
-    text:emoji, visual:'現在是幾點？',
-    hint: half?'分針指向6就是「半」喔！':'時針指著幾就是幾點！',
-    answer:ans,
-    options:shuffle([ans, half?`${h}點`:`${h}點半`, `${whs[0]}點`, `${whs[1]}點半`]),
-  };
+  return {type:'看時鐘',qtypeClass:'qtype-clock',text:emoji,visual:'現在是幾點？',hint:half?'分針指向6就是「半」喔！':'時針指著幾就是幾點！',answer:ans,options:shuffle([ans,half?`${h}點`:`${h}點半`,`${whs[0]}點`,`${whs[1]}點半`])};
 }
-
-// 21. 算錢幣
 function makeCoin(){
-  const lv=state.level;
-  const types=lv<=3?[1,1,5]:[1,5,5,10];
-  const n=lv<=3?rint(2,3):rint(2,4);
-  const coins=Array.from({length:n},()=>pick(types));
-  const total=coins.reduce((s,c)=>s+c,0);
+  const lv=state.level,types=lv<=3?[1,1,5]:[1,5,5,10],n=lv<=3?rint(2,3):rint(2,4);
+  const coins=Array.from({length:n},()=>pick(types)),total=coins.reduce((s,c)=>s+c,0);
   const em={1:'🟤',5:'🟡',10:'🔶'};
-  return {
-    type:'算錢幣', qtypeClass:'qtype-coin',
-    text:coins.map(c=>c+'元').join(' + ')+' = ？',
-    visual:coins.map(c=>em[c]).join(' '),
-    hint:'把每個硬幣的金額加起來！',
-    answer:total, options:genOpts(total,Math.max(25,total+10)),
-  };
+  return {type:'算錢幣',qtypeClass:'qtype-coin',text:coins.map(c=>c+'元').join(' + ')+' = ？',visual:coins.map(c=>em[c]).join(' '),hint:'把每個硬幣的金額加起來！',answer:total,options:genOpts(total,Math.max(25,total+10))};
 }
 
 // ============= 關卡題型池 =============
 function generateQuestion(){
   const lv=state.level;
   let pool;
-  if      (lv===1) pool=['count','add','add','compare','bond','beforeAfter'];
-  else if (lv===2) pool=['add','sub','compare','count','bond','ordinal','clock','beforeAfter','oddEven'];
-  else if (lv===3) pool=['add','sub','pattern','shapePattern','odd','clock','coin','ordinal','shapeProps','shapeCount','oddEven'];
-  else if (lv===4) pool=['add','sub','add2','sub2','pattern','odd','missing','clock','coin','shapeProps','shapeCount','shapePattern'];
-  else if (lv===5) pool=['add2','sub2','missing','missingSub','triple','pattern','odd','coin','shapeProps','shapePattern','beforeAfter','oddEven'];
-  else             pool=['triple','tens','add2','sub2','missing','missingSub','pattern','coin','shapeCount','shapePattern','oddEven'];
+  if(lv===1)      pool=['count','add','add','compare','bond','beforeAfter'];
+  else if(lv===2) pool=['add','sub','compare','count','bond','ordinal','clock','beforeAfter','oddEven'];
+  else if(lv===3) pool=['add','sub','pattern','shapePattern','odd','clock','coin','ordinal','shapeProps','shapeCount','oddEven'];
+  else if(lv===4) pool=['add','sub','add2','sub2','pattern','odd','missing','clock','coin','shapeProps','shapeCount','shapePattern'];
+  else if(lv===5) pool=['add2','sub2','missing','missingSub','triple','pattern','odd','coin','shapeProps','shapePattern','beforeAfter','oddEven'];
+  else            pool=['triple','tens','add2','sub2','missing','missingSub','pattern','coin','shapeCount','shapePattern','oddEven'];
 
   switch(pick(pool)){
-    case 'add':          return makeAdd();
-    case 'sub':          return makeSub();
-    case 'add2':         return makeAdd2();
-    case 'sub2':         return makeSub2();
-    case 'compare':      return makeCompare();
-    case 'beforeAfter':  return makeBeforeAfter();
-    case 'oddEven':      return makeOddEven();
-    case 'pattern':      return makePattern();
-    case 'shapePattern': return makeShapePattern();
-    case 'count':        return makeCount();
-    case 'shapeCount':   return makeShapeCount();
-    case 'shapeProps':   return makeShapeProps();
-    case 'odd':          return makeOddOne();
-    case 'bond':         return makeBond();
-    case 'missing':      return makeMissing();
-    case 'missingSub':   return makeMissingSub();
-    case 'triple':       return makeTriple();
-    case 'tens':         return makeTens();
-    case 'ordinal':      return makeOrdinal();
-    case 'clock':        return makeClock();
-    case 'coin':         return makeCoin();
-    default:             return makeAdd();
+    case 'add':return makeAdd(); case 'sub':return makeSub();
+    case 'add2':return makeAdd2(); case 'sub2':return makeSub2();
+    case 'compare':return makeCompare(); case 'beforeAfter':return makeBeforeAfter();
+    case 'oddEven':return makeOddEven(); case 'pattern':return makePattern();
+    case 'shapePattern':return makeShapePattern(); case 'count':return makeCount();
+    case 'shapeCount':return makeShapeCount(); case 'shapeProps':return makeShapeProps();
+    case 'odd':return makeOddOne(); case 'bond':return makeBond();
+    case 'missing':return makeMissing(); case 'missingSub':return makeMissingSub();
+    case 'triple':return makeTriple(); case 'tens':return makeTens();
+    case 'ordinal':return makeOrdinal(); case 'clock':return makeClock();
+    case 'coin':return makeCoin(); default:return makeAdd();
   }
 }
 
@@ -686,180 +503,158 @@ function generateQuestion(){
 const $=id=>document.getElementById(id);
 
 function render(){
-  $('level').textContent=state.level;
-  $('score').textContent=state.score;
-  let stars='';
-  for(let i=0;i<Math.min(state.streak,5);i++) stars+='⭐';
+  $('level').textContent=state.level; $('score').textContent=state.score;
+  let stars=''; for(let i=0;i<Math.min(state.streak,5);i++)stars+='⭐';
   $('starsRow').textContent=stars;
-
   const q=state.current;
-  const qt=$('qtype');
-  qt.textContent=q.type;
-  qt.className='qtype'+(q.qtypeClass?' '+q.qtypeClass:'');
-
-  $('question').textContent=q.text;
-  $('visual').textContent=q.visual||'';
-  $('hint').textContent=q.hint||'';
+  const qt=$('qtype'); qt.textContent=q.type; qt.className='qtype'+(q.qtypeClass?' '+q.qtypeClass:'');
+  $('question').textContent=q.text; $('visual').textContent=q.visual||''; $('hint').textContent=q.hint||'';
   $('feedback').innerHTML='&nbsp;';
-
-  const optsEl=$('options');
-  optsEl.innerHTML='';
+  const optsEl=$('options'); optsEl.innerHTML='';
   optsEl.style.gridTemplateColumns=q.twoOptions?'1fr 1fr':'repeat(2,1fr)';
   q.options.forEach((opt,idx)=>{
     const btn=document.createElement('button');
-    btn.className='opt c'+((idx%4)+1);
-    btn.textContent=opt;
-    btn.dataset.value=opt;
-    btn.onclick=()=>onAnswer(opt,btn);
-    optsEl.appendChild(btn);
+    btn.className='opt c'+((idx%4)+1); btn.textContent=opt; btn.dataset.value=opt;
+    btn.onclick=()=>onAnswer(opt,btn); optsEl.appendChild(btn);
   });
   $('nextBtn').disabled=true;
 }
 
-function onAnswer(value,btn){
+// ============= 答題邏輯 =============
+function onAnswer(value, btn) {
   initAudio();
   document.querySelectorAll('.opt').forEach(b=>b.onclick=null);
-  const ok=String(value)===String(state.current.answer);
+  const correct = String(value)===String(state.current.answer);
   state.totalAnswered++;
-  if(ok){
+  state.questionsThisRound++;
+  const isLast = state.questionsThisRound >= state.totalQuestions;
+
+  if (correct) {
     btn.classList.add('correct');
-    state.score+=10+state.streak*2;
+    state.score += 10 + state.streak * 2;
     state.streak++; state.wrongStreak=0; state.totalCorrect++;
+
+    const isMilestone = state.streak > 0 && state.streak % 5 === 0;
     $('feedback').className='feedback good';
-    $('feedback').textContent=pick(['好棒！🎉','答對了！⭐','太厲害了！🌟','你好聰明！🥳','賓果！🎊','完全正確！✨']);
+    $('feedback').textContent = pick(['好棒！🎉','答對了！⭐','太厲害了！🌟','你好聰明！🥳','賓果！🎊','完全正確！✨']);
+    if (isMilestone) setTimeout(()=>{ $('feedback').textContent='連對 '+state.streak+' 題！超棒！🏆'; playLevelUp(); }, 500);
+
     playCorrect(); confetti();
-    if(state.streak>0&&state.streak%5===0){
-      setTimeout(()=>{$('feedback').textContent='連對'+state.streak+'題！超棒！🏆';playLevelUp();},600);
+
+    // 升關判斷
+    const willLevelUp = state.streak>=3 && state.level<6;
+    if (willLevelUp) {
+      state.level++; if(state.level>state.maxLevelReached)state.maxLevelReached=state.level;
+      state.streak=0;
     }
+    renderTopbar();
+
+    // 自動進入下一題
+    if (isLast) {
+      setTimeout(showEndScreen, 1500);
+    } else if (willLevelUp) {
+      setTimeout(showLevelUp, 1000);
+    } else {
+      setTimeout(nextQuestion, isMilestone ? 2400 : 1000);
+    }
+
   } else {
     btn.classList.add('wrong');
     state.streak=0; state.wrongStreak++;
     $('feedback').className='feedback bad';
-    $('feedback').textContent='再試試看！正確答案是「'+state.current.answer+'」喔 💪';
+    $('feedback').textContent='正確答案是「'+state.current.answer+'」喔 💪';
     playWrong();
-    document.querySelectorAll('.opt').forEach(b=>{
-      if(String(b.dataset.value)===String(state.current.answer)) b.classList.add('correct');
-    });
-  }
-  state.questionsThisRound++;
-  renderTopbar();
-  $('nextBtn').disabled=false;
 
-  if(state.streak>=3&&state.level<6){
-    state.level++;
-    if(state.level>state.maxLevelReached) state.maxLevelReached=state.level;
-    state.streak=0;
-    setTimeout(showLevelUp,1200);
-  } else if(state.wrongStreak>=2&&state.level>1){
-    state.level--; state.wrongStreak=0;
-    setTimeout(()=>{$('feedback').textContent='我們先回到簡單一點的題目 😊';},600);
-  }
-  if(state.questionsThisRound>=state.totalQuestions){
-    setTimeout(showEndScreen,1500);
-    $('nextBtn').disabled=true;
+    // 在正確答案加上脈衝高亮
+    document.querySelectorAll('.opt').forEach(b=>{
+      if(String(b.dataset.value)===String(state.current.answer)) b.classList.add('correct-hl');
+    });
+
+    // 降關判斷
+    if (state.wrongStreak>=2 && state.level>1) {
+      state.level--; state.wrongStreak=0;
+      setTimeout(()=>{ $('feedback').textContent='我們先回到簡單一點的題目 😊'; }, 600);
+    }
+    renderTopbar();
+    $('nextBtn').disabled=false;   // 答錯才顯示下一題按鈕
   }
 }
 
 function renderTopbar(){
-  $('level').textContent=state.level;
-  $('score').textContent=state.score;
-  let stars='';
-  for(let i=0;i<Math.min(state.streak,5);i++) stars+='⭐';
+  $('level').textContent=state.level; $('score').textContent=state.score;
+  let stars=''; for(let i=0;i<Math.min(state.streak,5);i++)stars+='⭐';
   $('starsRow').textContent=stars;
   const pct=Math.min(100,Math.round(state.questionsThisRound/state.totalQuestions*100));
   $('progressFill').style.width=pct+'%';
 }
 
-function nextQuestion(){ state.current=generateQuestion(); render(); }
+function nextQuestion(){
+  // 如果題目已達上限，直接結束（用於答錯最後一題後按下一題的情境）
+  if(state.questionsThisRound>=state.totalQuestions){ showEndScreen(); return; }
+  state.current=generateQuestion(); render();
+}
 
 // ============= 模態框 =============
 function showLevelUp(){
-  $('modalEmoji').textContent='🚀';
-  $('modalTitle').textContent='升級囉！';
+  $('modalEmoji').textContent='🚀'; $('modalTitle').textContent='升級囉！';
   $('modalText').textContent='你進入了第 '+state.level+' 關！題目會難一點點喔～';
-  $('modalScore').textContent='目前分數：'+state.score;
-  $('modalBtn').textContent='繼續挑戰 💪';
-  $('modalBg').classList.add('show');
-  playLevelUp();
+  $('modalScore').textContent='目前分數：'+state.score; $('modalBtn').textContent='繼續挑戰 💪';
+  $('modalBg').classList.add('show'); playLevelUp();
 }
-$('modalBtn').onclick=()=>{
-  $('modalBg').classList.remove('show');
-  if(state.questionsThisRound<state.totalQuestions) nextQuestion();
-};
+$('modalBtn').onclick=()=>{ $('modalBg').classList.remove('show'); nextQuestion(); };
 
 function showEndScreen(){
   const acc=state.totalAnswered>0?Math.round(state.totalCorrect/state.totalAnswered*100):0;
-  $('gameScreen').classList.add('hidden');
-  $('endScreen').classList.remove('hidden');
+  $('gameScreen').classList.add('hidden'); $('endScreen').classList.remove('hidden');
   let emoji,title,comment;
   if(acc>=90){emoji='🏆';title='完美表現！';comment='你真是個小小數學家！太強了！';}
   else if(acc>=70){emoji='🎉';title='太棒了！';comment='繼續加油，你越來越厲害了！';}
   else if(acc>=50){emoji='🌟';title='做得好！';comment='有進步喔！再多練習就更棒！';}
   else{emoji='🌱';title='完成了！';comment='慢慢來，數學需要多多練習～';}
-  $('endEmoji').textContent=emoji;
-  $('endTitle').textContent=title;
-  $('endComment').textContent=comment;
-  $('endScore').textContent=state.score;
+  $('endEmoji').textContent=emoji; $('endTitle').textContent=title;
+  $('endComment').textContent=comment; $('endScore').textContent=state.score;
   $('endCorrect').textContent=state.totalCorrect+'/'+state.totalAnswered;
   $('endLevel').textContent='第 '+state.maxLevelReached+' 關';
-  for(let i=0;i<3;i++) setTimeout(confetti,i*400);
-  playLevelUp();
+  for(let i=0;i<3;i++)setTimeout(confetti,i*400); playLevelUp();
 }
 
 function restartGame(){
   Object.assign(state,{level:1,maxLevelReached:1,score:0,streak:0,wrongStreak:0,questionsThisRound:0,totalCorrect:0,totalAnswered:0,current:null});
-  $('endScreen').classList.add('hidden');
-  $('gameScreen').classList.add('hidden');
-  $('startScreen').classList.remove('hidden');
+  $('endScreen').classList.add('hidden'); $('gameScreen').classList.add('hidden'); $('startScreen').classList.remove('hidden');
 }
-
 function startGame(count){
   Object.assign(state,{totalQuestions:count,questionsThisRound:0,totalCorrect:0,totalAnswered:0,score:0,streak:0,wrongStreak:0,level:1,maxLevelReached:1});
-  $('startScreen').classList.add('hidden');
-  $('endScreen').classList.add('hidden');
-  $('gameScreen').classList.remove('hidden');
-  initAudio(); nextQuestion(); renderTopbar();
+  $('startScreen').classList.add('hidden'); $('endScreen').classList.add('hidden'); $('gameScreen').classList.remove('hidden');
+  initAudio(); state.current=generateQuestion(); render(); renderTopbar();
 }
 
 // ============= 五彩紙花 =============
 function confetti(){
   const colors=['#ff7eb6','#ffd75e','#66d9a8','#66b8ff','#b388ff','#ff9966'];
   for(let i=0;i<30;i++){
-    const c=document.createElement('div');
-    c.className='confetti';
+    const c=document.createElement('div'); c.className='confetti';
     c.style.left=(Math.random()*100)+'%';
     c.style.background=colors[Math.floor(Math.random()*colors.length)];
     c.style.transform='rotate('+(Math.random()*360)+'deg)';
     document.body.appendChild(c);
-    const dur=1200+Math.random()*800, drift=(Math.random()-.5)*200;
-    c.animate([
-      {transform:c.style.transform+' translateY(0) translateX(0)',opacity:1},
-      {transform:c.style.transform+' translateY('+(window.innerHeight+30)+'px) translateX('+drift+'px)',opacity:.2}
-    ],{duration:dur,easing:'cubic-bezier(.2,.6,.4,1)'});
+    const dur=1200+Math.random()*800,drift=(Math.random()-.5)*200;
+    c.animate([{transform:c.style.transform+' translateY(0) translateX(0)',opacity:1},{transform:c.style.transform+' translateY('+(window.innerHeight+30)+'px) translateX('+drift+'px)',opacity:.2}],{duration:dur,easing:'cubic-bezier(.2,.6,.4,1)'});
     setTimeout(()=>c.remove(),dur);
   }
 }
 
 // ============= 控制 =============
 $('nextBtn').onclick=()=>nextQuestion();
-$('soundBtn').onclick=()=>{
-  state.soundOn=!state.soundOn;
-  $('soundBtn').textContent=state.soundOn?'🔊':'🔇';
-  initAudio();
-};
+$('soundBtn').onclick=()=>{ state.soundOn=!state.soundOn; $('soundBtn').textContent=state.soundOn?'🔊':'🔇'; initAudio(); };
 document.addEventListener('keydown',e=>{
-  if(e.key>='1'&&e.key<='4'){
-    const opts=document.querySelectorAll('.opt');
-    const idx=parseInt(e.key)-1;
-    if(opts[idx]&&opts[idx].onclick) opts[idx].click();
-  } else if(e.key==='Enter'&&!$('nextBtn').disabled){
-    $('nextBtn').click();
-  }
+  if(e.key>='1'&&e.key<='4'){const opts=document.querySelectorAll('.opt');const idx=parseInt(e.key)-1;if(opts[idx]&&opts[idx].onclick)opts[idx].click();}
+  else if(e.key==='Enter'&&!$('nextBtn').disabled)$('nextBtn').click();
 });
-document.querySelectorAll('.count-btn').forEach(btn=>{
-  btn.onclick=()=>startGame(parseInt(btn.dataset.count,10));
-});
+document.querySelectorAll('.count-btn').forEach(btn=>{ btn.onclick=()=>startGame(parseInt(btn.dataset.count,10)); });
 $('restartBtn').onclick=restartGame;
+
+// ============= 啟動 =============
+initBgDecos();
 </script>
 </body>
 </html>
